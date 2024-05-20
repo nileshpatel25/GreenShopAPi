@@ -38,7 +38,7 @@ namespace apiGreenShop.Controllers
                         version = appversionRequest.version,
                         forceUpdate=appversionRequest.forceUpdate,
                         deleted = false,
-                        publishdate = DateTime.Now
+                        publishdate = DateTime.UtcNow
 
                     };
                     // memoryCache.Remove("citylist");

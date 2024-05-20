@@ -94,7 +94,7 @@ namespace apiGreenShop.Controllers
                 ResponseStatus status = new ResponseStatus();
                 int count = UserManager.Users.ToList().Count();
                 int skip = (pageNo - 1) * pageSize;
-                var alluser = UserManager.Users.OrderByDescending(a => a.Id).Skip(skip).Take(pageSize).ToList();
+                var alluser = UserManager.Users.OrderByDescending(a => a.registrationdate).Skip(skip).Take(pageSize).ToList();
                 status.lstItems = alluser;
                 status.objItem = count;
                 status.status = true;
@@ -142,7 +142,7 @@ namespace apiGreenShop.Controllers
             //    Email = registerRequest.email             
 
             //};
-            var user = new ApplicationUser() { UserName = registerRequest.phonenumber, firstname = registerRequest.name, Email = registerRequest.email, PhoneNumber = registerRequest.phonenumber, source = registerRequest.source, readonlypassword=registerRequest.password };
+            var user = new ApplicationUser() { UserName = registerRequest.phonenumber, firstname = registerRequest.name, Email = registerRequest.email, PhoneNumber = registerRequest.phonenumber, source = registerRequest.source, readonlypassword=registerRequest.password, registrationdate=DateTime.UtcNow };
             var result = await UserManager.CreateAsync(user, registerRequest.password);
             var role = await RoleManager.FindByNameAsync("User");
             if (result.Succeeded)
@@ -156,7 +156,7 @@ namespace apiGreenShop.Controllers
                 var sms = appDbContex.Smsconfigurations.Where(a => a.code == "REGI" && a.deleted == false).SingleOrDefault();
                 if(sms !=null)
                 {
-                    sendSMS.SendTextSms(sms.body.ToString(), "+91" + registerRequest.phonenumber);
+                   sendSMS.SendTextSms(sms.body.ToString(), "+91" + registerRequest.phonenumber);
                 }
 
 
@@ -192,7 +192,7 @@ namespace apiGreenShop.Controllers
                         id = guId.ToString(),
                         userid = pushnotificationidRequest.userid,
                         pushId = pushnotificationidRequest.pushId,
-                        createAt = DateTime.Now
+                        createAt = DateTime.UtcNow
                     };
                     appDbContex.Pushnotificationids.Add(pushnotificationids);
                     await appDbContex.SaveChangesAsync();
@@ -247,7 +247,7 @@ namespace apiGreenShop.Controllers
                     pincode = addressrequest.pincode,
                     remark = addressrequest.remark,
                     deleted = false,
-                    creatAt = DateTime.Now
+                    creatAt = DateTime.UtcNow
                 };
                 // memoryCache.Remove("citylist");
                 appDbContex.Addresses.Add(addresses);
@@ -492,7 +492,7 @@ namespace apiGreenShop.Controllers
                     string strpassword = user.readonlypassword;
                     responseStatus.status = true;
                     responseStatus.message = "your password has been sent you by text message.";
-                    sendSMS.SendTextSms("Your Password is : " + strpassword + ", Green Shop.", "91" + mobileno);
+                    sendSMS.sendpasswordsms("Your Password is : " + strpassword + ",Thank You, Green Shop.GRNSHP", "91" + mobileno);
                 }
                  else
                 {
@@ -509,8 +509,34 @@ namespace apiGreenShop.Controllers
             }
         }
 
-      
 
+        [HttpGet]
+        [Route("getAllUserlistforpushnotification")]
+        public async Task<ResponseStatus> getAllUserlistforpushnotification()
+        {
+            try
+            {
+                ResponseStatus status = new ResponseStatus();
+                //int count = UserManager.Users.ToList().Count();
+                //  int skip = (pageNo - 1) * pageSize;
+                var alluser = from u in appDbContex.Users
+                              select new
+                              {
+                                  u.Id,
+                                  contactno = u.PhoneNumber + " " + u.firstname
+                              };
+                status.lstItems = alluser;
+                //status.objItem = count;
+                status.status = true;
+                return status;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
 
 
 

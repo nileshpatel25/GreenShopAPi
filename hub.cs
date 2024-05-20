@@ -4,20 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace apiGreenShop
 {
+    [HubName("chat")]
     public class hub : Hub
     {
-        //public void Hello()
-        //{
-        //    Clients.All.hello();
-        //}
-        public override Task OnConnected()
+        public string msg = string.Empty;
+        public void Hello()
         {
-           // Trace.WriteLine("Method: On Connected");
-            return base.OnConnected();
-
+            Clients.All.messageReceived(msg);
         }
+       
     }
 }

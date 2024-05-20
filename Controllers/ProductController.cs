@@ -1,6 +1,7 @@
 ﻿using apiGreenShop.DataModel;
 using apiGreenShop.Models;
 using ExcelDataReader;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -75,7 +76,7 @@ namespace apiGreenShop.Controllers
                             // image=categoryRequest.image,
                             deleted = false,
                             active=false,
-                            createAt = DateTime.Now
+                            createAt = DateTime.UtcNow
                         };
                         //  memoryCache.Remove("prodcutlist");
                         appDbContex.Products.Add(product);
@@ -115,7 +116,7 @@ namespace apiGreenShop.Controllers
                             product.discription = productRequest.discription;
                             product.orderno = productRequest.orderno;
                             product.quantity = productRequest.quantity;
-                            product.updateAt = DateTime.Now;
+                            product.updateAt = DateTime.UtcNow;
                             //unitfactor
                             product.unitfactorid = productRequest.unitfactorid;
                             //wholesellerprice
@@ -463,7 +464,11 @@ namespace apiGreenShop.Controllers
                     // memoryCache.Remove("prodcutlist");
                     //  appDbContex.Update(product);
                     await appDbContex.SaveChangesAsync();
-                    responseStatus.status = true;
+
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                    hubContext.Clients.All.sendMessage("Item Active/InActive.");
+
+                    responseStatus.status = true;    
                     responseStatus.objItem = product.Id;
                     return responseStatus;
 
@@ -497,6 +502,10 @@ namespace apiGreenShop.Controllers
                     // memoryCache.Remove("prodcutlist");
                     //  appDbContex.Update(product);
                     await appDbContex.SaveChangesAsync();
+
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                    hubContext.Clients.All.sendMessage("Item price updated.");
+
                     responseStatus.message = "Item price updated successfully";
                     responseStatus.status = true;
                     responseStatus.objItem = product.Id;
@@ -529,9 +538,13 @@ namespace apiGreenShop.Controllers
                     product.quantity = quantity;
 
 
-                    // memoryCache.Remove("prodcutlist");
-                    //  appDbContex.Update(product);
+                    //memoryCache.Remove("prodcutlist");
+                    //appDbContex.Update(product);
                     await appDbContex.SaveChangesAsync();
+
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                    hubContext.Clients.All.sendMessage("Item Quantity updated.");
+
                     responseStatus.message = "Item Quantity updated successfully";
                     responseStatus.status = true;
                     responseStatus.objItem = product.Id;
@@ -568,6 +581,10 @@ namespace apiGreenShop.Controllers
                     // memoryCache.Remove("prodcutlist");
                     //  appDbContex.Update(product);
                     await appDbContex.SaveChangesAsync();
+
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                    hubContext.Clients.All.sendMessage("Item DiscountPer updated.");
+
                     responseStatus.message = "Item DiscountPer updated successfully";
                     responseStatus.status = true;
                     responseStatus.objItem = product.Id;
@@ -602,6 +619,10 @@ namespace apiGreenShop.Controllers
                     // memoryCache.Remove("prodcutlist");
                     //  appDbContex.Update(product);
                     await appDbContex.SaveChangesAsync();
+
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                    hubContext.Clients.All.sendMessage("Item DiscountPrice updated.");
+
                     responseStatus.message = "Item DiscountPrice updated successfully";
                     responseStatus.status = true;
                     responseStatus.objItem = product.Id;
@@ -652,7 +673,202 @@ namespace apiGreenShop.Controllers
 
 
         }
+        [HttpPost]
+        [Route("AllProductforhome")]
+        public async Task<ResponseStatus> getAllProductforhome(int pageNo, int pageSize)
+        {
+            try
+            {
+                ResponseStatus status = new ResponseStatus();
 
+                // int count = appDbContex.Products.Where(a => a.deleted == false && a.categoryid==categoryid).ToList().Count();
+                // int skip = (pageNo - 1) * pageSize;
+                var productlst = from a in appDbContex.Products
+                                 join p in appDbContex.UnitQuantityFactors on a.unitfactorid equals p.unitfactornameid into quantityfactor
+                                 where a.deleted == false && a.quantity != 0
+
+                                 select new
+                                 {
+                                     a.name,
+                                     a.unitid,
+                                     unitname = appDbContex.Units.Where(u => u.Id == a.unitid).FirstOrDefault().name,
+                                     a.categoryid,
+                                     categoryname = appDbContex.Categories.Where(u => u.Id == a.categoryid).FirstOrDefault().name,
+                                     a.active,
+                                     status = (a.active == false ? "Active" : "In-Active"),
+                                     a.code,
+                                     a.deleted,
+                                     a.price,
+                                     a.discountper,
+                                     a.discountprice,
+                                     a.discription,
+                                     a.Id,
+                                     a.orderno,
+                                     a.image,
+                                     a.intaxslabid,
+                                     slabname = appDbContex.TaxSlabMasters.Where(u => u.Id == a.intaxslabid).FirstOrDefault().stSlabName,
+                                     a.quantity,
+                                     a.subcategoryid,
+                                     a.subsubcategoryid,
+                                     a.wholesellerPrice,
+                                     a.wholesellerdiscountprice,
+                                     a.wholesellerdiscountper,
+                                     a.premiumdiscountper,
+                                     a.premiumdiscountprice,
+                                     a.premiumPrice,
+                                     a.unitfactorid,
+                                     stockquantity = appDbContex.UnitQuantityFactors.Where(f => f.unitfactornameid == a.unitfactorid && f.quantityfactor == 1).FirstOrDefault().quantityfactor,
+                                     subunits = quantityfactor.Select(c => new
+                                     {
+                                         c.id,
+                                         c.unitfactornameid,
+                                         unitfactorname = appDbContex.UnitFactorNames.Where(u => u.id == c.unitfactornameid).FirstOrDefault().unitfactorname,
+                                         c.unitname,
+                                         c.quantityfactor,
+                                         c.pricefactor,
+                                         c.deleted
+
+                                     }).Where(d => d.deleted == false),
+                                     a.wholesellerunitid,
+                                     wholesellerunitname = appDbContex.Units.Where(u => u.Id == a.wholesellerunitid).FirstOrDefault().name,
+                                     a.wholesellerunitfactorid,
+                                     wholesellersubunits = quantityfactor.Select(c => new
+                                     {
+                                         c.id,
+                                         c.unitfactornameid,
+                                         unitfactorname = appDbContex.UnitFactorNames.Where(u => u.id == c.unitfactornameid).FirstOrDefault().unitfactorname,
+                                         c.unitname,
+                                         c.quantityfactor,
+                                         c.pricefactor,
+                                         c.deleted
+
+                                     }).Where(d => d.deleted == false),
+                                     a.premiumunitid,
+                                     premiumunitname = appDbContex.Units.Where(u => u.Id == a.premiumunitid).FirstOrDefault().name,
+                                     a.premiumunitfactorid,
+                                     premiumsubunits = quantityfactor.Select(c => new
+                                     {
+                                         c.id,
+                                         c.unitfactornameid,
+                                         unitfactorname = appDbContex.UnitFactorNames.Where(u => u.id == c.unitfactornameid).FirstOrDefault().unitfactorname,
+                                         c.unitname,
+                                         c.quantityfactor,
+                                         c.pricefactor,
+                                         c.deleted
+
+                                     }).Where(d => d.deleted == false)
+
+                                 };
+                status.lstItems = productlst.ToList().Take(12);
+                //status.objItem = count;
+                status.status = true;
+                return status;
+            }
+
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        [HttpPost]
+        [Route("AllProductbycategoryid")]
+        public async Task<ResponseStatus> getAllProductbycategory(string categoryid)
+        {
+            try
+            {
+                ResponseStatus status = new ResponseStatus();
+
+                // int count = appDbContex.Products.Where(a => a.deleted == false && a.categoryid==categoryid).ToList().Count();
+                // int skip = (pageNo - 1) * pageSize;
+                var productlst = from a in appDbContex.Products.OrderBy(p=>p.orderno)
+                                 join p in appDbContex.UnitQuantityFactors on a.unitfactorid equals p.unitfactornameid into quantityfactor
+                                 where a.categoryid == categoryid && a.active == false && a.deleted==false
+
+                                 select new
+                                 {
+                                     a.name,
+                                     a.unitid,
+                                     unitname = appDbContex.Units.Where(u => u.Id == a.unitid).FirstOrDefault().name,
+                                     a.categoryid,
+                                     categoryname = appDbContex.Categories.Where(u => u.Id == a.categoryid).FirstOrDefault().name,
+                                     a.active,
+                                     status = (a.active == false ? "Active" : "In-Active"),
+                                     a.code,
+                                     a.deleted,
+                                     a.price,
+                                     a.discountper,
+                                     a.discountprice,
+                                     a.discription,
+                                     a.Id,
+                                     a.orderno,
+                                     a.image,
+                                     a.intaxslabid,
+                                     slabname = appDbContex.TaxSlabMasters.Where(u => u.Id == a.intaxslabid).FirstOrDefault().stSlabName,
+                                     a.quantity,
+                                     a.subcategoryid,
+                                     a.subsubcategoryid,
+                                     a.wholesellerPrice,
+                                     a.wholesellerdiscountprice,
+                                     a.wholesellerdiscountper,
+                                     a.premiumdiscountper,
+                                     a.premiumdiscountprice,
+                                     a.premiumPrice,
+                                     a.unitfactorid,
+                                     stockquantity = appDbContex.UnitQuantityFactors.Where(f => f.unitfactornameid == a.unitfactorid && f.quantityfactor == 1).FirstOrDefault().quantityfactor,
+                                     subunits = quantityfactor.Select(c => new
+                                     {
+                                         c.id,
+                                         c.unitfactornameid,
+                                         unitfactorname = appDbContex.UnitFactorNames.Where(u => u.id == c.unitfactornameid).FirstOrDefault().unitfactorname,
+                                         c.unitname,
+                                         c.quantityfactor,
+                                         c.pricefactor,
+                                         c.deleted
+
+                                     }).Where(d => d.deleted == false),
+                                     a.wholesellerunitid,
+                                     wholesellerunitname = appDbContex.Units.Where(u => u.Id == a.wholesellerunitid).FirstOrDefault().name,
+                                     a.wholesellerunitfactorid,
+                                     wholesellersubunits = quantityfactor.Select(c => new
+                                     {
+                                         c.id,
+                                         c.unitfactornameid,
+                                         unitfactorname = appDbContex.UnitFactorNames.Where(u => u.id == c.unitfactornameid).FirstOrDefault().unitfactorname,
+                                         c.unitname,
+                                         c.quantityfactor,
+                                         c.pricefactor,
+                                         c.deleted
+
+                                     }).Where(d => d.deleted == false),
+                                     a.premiumunitid,
+                                     premiumunitname = appDbContex.Units.Where(u => u.Id == a.premiumunitid).FirstOrDefault().name,
+                                     a.premiumunitfactorid,
+                                     premiumsubunits = quantityfactor.Select(c => new
+                                     {
+                                         c.id,
+                                         c.unitfactornameid,
+                                         unitfactorname = appDbContex.UnitFactorNames.Where(u => u.id == c.unitfactornameid).FirstOrDefault().unitfactorname,
+                                         c.unitname,
+                                         c.quantityfactor,
+                                         c.pricefactor,
+                                         c.deleted
+
+                                     }).Where(d => d.deleted == false)
+
+                                 };
+                status.lstItems = productlst;
+                //status.objItem = count;
+                status.status = true;
+                return status;
+            }
+
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
         [HttpPost]
         [Route("AllProduct")]

@@ -41,7 +41,7 @@ namespace apiGreenShop.Controllers
                             subject = emailconfigurationRequest.subject,
                             body = emailconfigurationRequest.body,
                             deleted = false,
-                            createAt = DateTime.Now
+                            createAt = DateTime.UtcNow
                         };
                         // memoryCache.Remove("emaillist");
                         appDbContex.Emailconfigurations.Add(emailconfiguration);
@@ -66,7 +66,7 @@ namespace apiGreenShop.Controllers
                             // emailconfiguration.code = emailconfigurationRequest.code;
                             emailconfiguration.subject = emailconfigurationRequest.subject;
                             emailconfiguration.body = emailconfigurationRequest.body;
-                            emailconfiguration.updateAt = DateTime.Now;
+                            emailconfiguration.updateAt = DateTime.UtcNow;
                         }
                         //  memoryCache.Remove("emaillist");
                         //  appDbContex.Update(emailconfiguration);

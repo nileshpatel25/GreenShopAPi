@@ -45,7 +45,7 @@ namespace apiGreenShop.Controllers
                         fromdate = sliderRequest.fromdate,
                         todate = sliderRequest.todate,
                         orderno = sliderRequest.orderno,
-                        createAt = DateTime.Now
+                        createAt = DateTime.UtcNow
                     };
                     // memoryCache.Remove("bannerlist");
                     appDbContex.Sliders.Add(slider);
@@ -65,7 +65,7 @@ namespace apiGreenShop.Controllers
                         slider.fromdate = sliderRequest.fromdate;
                         slider.todate = sliderRequest.todate;
                         slider.orderno = sliderRequest.orderno;
-                        slider.updateAt = DateTime.Now;
+                        slider.updateAt = DateTime.UtcNow;
 
                     }
                     // memoryCache.Remove("bannerlist");
@@ -180,7 +180,7 @@ namespace apiGreenShop.Controllers
                 if (slider != null)
                 {
                     slider.deleted = true;
-                    slider.updateAt = DateTime.Now;
+                    slider.updateAt = DateTime.UtcNow;
                     //  memoryCache.Remove("bannerlist");
                     await appDbContex.SaveChangesAsync();
 
@@ -289,7 +289,7 @@ namespace apiGreenShop.Controllers
                                 image = "http://api.greenshops.in/Images/" + filename,
                                 deleted = false,
                                 active = false,
-                                createAt = DateTime.Now
+                                createAt = DateTime.UtcNow
 
                             };
                             appDbContex.Sliders.Add(slider);

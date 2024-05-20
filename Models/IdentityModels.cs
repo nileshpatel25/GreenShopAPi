@@ -1,4 +1,6 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -21,13 +23,15 @@ namespace apiGreenShop.Models
         public string lastname { get; set; }
         public string address { get; set; }
         public string address2 { get; set; }
-        public string landmark { get; set; }
+        public string landmark { get; set; }        
         public string city { get; set; }
         public string pincode { get; set; }
+        public DateTime registrationdate { get; set; }
         public string othercontactno { get; set; }
         public string source { get; set; }
-        public string profilepic { get; set; }
+        public string profilepic { get; set; }    
         public string readonlypassword { get; set; }
+        
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -60,6 +64,9 @@ namespace apiGreenShop.Models
 
         public DbSet<UnitFactorName> UnitFactorNames { get; set; }
         public DbSet<UnitQuantityFactor> UnitQuantityFactors { get; set; }
+        public DbSet<SMSLink> SMSLinks { get; set; }
+        public DbSet<review> Reviews { get; set; }
+        public DbSet<newslatter> Newslatters { get; set; }
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();

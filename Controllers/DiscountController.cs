@@ -47,7 +47,7 @@ namespace apiGreenShop.Controllers
                         conditionaldiscount = discountRequest.conditionaldiscount,
                         mindiscountamt = discountRequest.mindiscountamt,
                         status = discountRequest.status,
-                        createdAt = DateTime.Now,
+                        createdAt = DateTime.UtcNow,
                         deleted = false
 
                     };
@@ -111,7 +111,7 @@ namespace apiGreenShop.Controllers
                         discount.conditionaldiscount = discountRequest.conditionaldiscount;
                         discount.mindiscountamt = discountRequest.mindiscountamt;
                         discount.status = discountRequest.status;
-                        discount.createdAt = DateTime.Now;
+                        discount.createdAt = DateTime.UtcNow;
                         discount.deleted = false;
 
                         await appDbContex.SaveChangesAsync();

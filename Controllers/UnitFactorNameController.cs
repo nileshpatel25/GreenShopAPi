@@ -37,7 +37,7 @@ namespace apiGreenShop.Controllers
                         {
                             id = guId.ToString(),
                             unitfactorname = unitFactornameRequest.unitfactorname,
-                            createdAt=DateTime.Now,
+                            createdAt=DateTime.UtcNow,
                             deleted = false
                             
                         };

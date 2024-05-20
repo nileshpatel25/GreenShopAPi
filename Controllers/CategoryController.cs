@@ -1,5 +1,6 @@
 ﻿using apiGreenShop.DataModel;
 using apiGreenShop.Models;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -477,6 +478,8 @@ namespace apiGreenShop.Controllers
                     // memoryCache.Remove("prodcutlist");
                     //  appDbContex.Update(product);
                     await appDbContex.SaveChangesAsync();
+                    var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                    hubContext.Clients.All.sendMessage("category Active/Inactive");
                     responseStatus.status = true;
                     responseStatus.objItem = product.Id;
                     return responseStatus;
@@ -592,5 +595,31 @@ namespace apiGreenShop.Controllers
                 throw ex;
             }
         }
+
+
+        [HttpGet]
+        [Route("categoryforweb")]
+        public async Task<ResponseStatus> getAllCategoryweb()
+        {
+            try
+            {
+
+                ResponseStatus status = new ResponseStatus();
+
+                var categorylst = appDbContex.Categories.Where(a => a.subcategoryid == "0" && a.subsubcategoryid == "0" && a.deleted == false && a.active == false).OrderBy(a => a.orderno).ToList();
+                status.lstItems = categorylst;
+                status.status = true;
+                return status;
+
+            }
+
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
     }
 } 

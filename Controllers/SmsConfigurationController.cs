@@ -41,7 +41,7 @@ namespace apiGreenShop.Controllers
                             subject = smsconfigRequest.subject,
                             body = smsconfigRequest.body,
                             deleted = false,
-                            createAt = DateTime.Now
+                            createAt = DateTime.UtcNow
                         };
                         //  memoryCache.Remove("smslist");
                         appDbContex.Smsconfigurations.Add(smsconfigurations);
@@ -63,10 +63,10 @@ namespace apiGreenShop.Controllers
                         if (smsconfiguration != null)
                         {
                             smsconfiguration.name = smsconfigRequest.name;
-                            //smsconfiguration.code = smsconfigRequest.code;
+                            smsconfiguration.code = smsconfigRequest.code;
                             smsconfiguration.subject = smsconfigRequest.subject;
                             smsconfiguration.body = smsconfigRequest.body;
-                            smsconfiguration.updateAt = DateTime.Now;
+                            smsconfiguration.updateAt = DateTime.UtcNow;
                         }
                         // memoryCache.Remove("smslist");
                         //appDbContex.Update(smsconfiguration);

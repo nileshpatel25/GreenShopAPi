@@ -40,7 +40,7 @@ namespace apiGreenShop.Controllers
                             name = cityRequest.name,
                             code = cityRequest.code,
                             deleted = false,
-                            createAt = DateTime.Now
+                            createAt = DateTime.UtcNow
                         };
                         // memoryCache.Remove("citylist");
                         appDbContex.Cities.Add(city);

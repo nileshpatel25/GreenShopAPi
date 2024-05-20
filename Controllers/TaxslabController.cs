@@ -45,7 +45,7 @@ namespace apiGreenShop.Controllers
                             SGST = taxSlabRequest.SGST,
                             IGST = taxSlabRequest.IGST,
                             deleted = false,
-                            createAt = DateTime.Now
+                            createAt = DateTime.UtcNow
                         };
                         //   memoryCache.Remove("taxslablist");
                         appDbContex.TaxSlabMasters.Add(taxSlabMaster);
@@ -78,7 +78,7 @@ namespace apiGreenShop.Controllers
                             slab.CGST = taxSlabRequest.CGST;
                             slab.SGST = taxSlabRequest.SGST;
                             slab.IGST = taxSlabRequest.IGST;
-                            slab.updateAt = DateTime.Now;
+                            slab.updateAt = DateTime.UtcNow;
                             //memoryCache.Remove("taxslablist");
                             //appDbContex.Update(slab);
                             await appDbContex.SaveChangesAsync();

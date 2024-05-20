@@ -44,7 +44,7 @@ namespace apiGreenShop.Controllers
                             unitprice = cartRequest.unitprice,
                             totalprice = cartRequest.totalprice,
                             quantity = cartRequest.quantity,
-                            createAt = DateTime.Now,
+                            createAt = DateTime.UtcNow,
 
                             deleted = false
 

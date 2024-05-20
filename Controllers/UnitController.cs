@@ -39,7 +39,7 @@ namespace apiGreenShop.Controllers
                             name = unitRequest.name,
                             code = unitRequest.code,
                             deleted = false,
-                            createAt = DateTime.Now
+                            createAt = DateTime.UtcNow
                         };
                         // memoryCache.Remove("unitlist");
                         appDbContex.Units.Add(unit);
@@ -64,7 +64,7 @@ namespace apiGreenShop.Controllers
                         if (unit != null)
                         {
                             unit.name = unitRequest.name;
-                            unit.updateAt = DateTime.Now;
+                            unit.updateAt = DateTime.UtcNow;
                             // memoryCache.Remove("unitlist");
                             // appDbContex.Update(unit);
                             await appDbContex.SaveChangesAsync();

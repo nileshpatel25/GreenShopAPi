@@ -142,7 +142,7 @@ namespace apiGreenShop.Controllers
                         vendorId = sendSMSRequest.vendorId,
                         message = sendSMSRequest.message,
                         mobileno = PhoneNo.mobileno,
-                        createddt = DateTime.Now
+                        createddt = DateTime.UtcNow
                     };
                     appDbContex.SMSHistories.Add(sMSHistory);
                     await appDbContex.SaveChangesAsync();
@@ -176,7 +176,7 @@ namespace apiGreenShop.Controllers
                         vendorId = userid,
                         message = message,
                         mobileno = ls.PhoneNumber,
-                        createddt = DateTime.Now
+                        createddt = DateTime.UtcNow
                     };
                     appDbContex.SMSHistories.Add(sMSHistory);
                     await appDbContex.SaveChangesAsync();
@@ -214,5 +214,93 @@ namespace apiGreenShop.Controllers
                 throw ex;
             }
         }
+
+        [HttpGet]
+        [Route("allpushtoken")]
+        public async Task<ResponseStatus> getallpushtoken()
+        {
+            try
+            {
+                ResponseStatus status = new ResponseStatus();
+               
+                var tokenlist = appDbContex.Pushnotificationids.ToList();
+                status.lstItems = tokenlist;
+               
+                status.status = true;
+                return status;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        [HttpPost]
+        [Route("sendpushnotificationtoandroid")]
+        public async Task<ResponseStatus> sendpushnotificationtoandroid(string notificationtext)
+        {
+            try
+            {
+                ResponseStatus status = new ResponseStatus();
+                PushNotificationLogic pushNotificationLogic = new PushNotificationLogic("");
+                var androidDeviceTocken = appDbContex.Pushnotificationids.ToList();
+                foreach (var ls in androidDeviceTocken)
+                {
+                    pushNotificationLogic.SendPushNotification(ls.pushId, notificationtext, "GreenShops", "notification");
+                }
+
+                // var myobj = new { Name = "Nilesh", City = "Chikhli" };
+
+                // string devicetoken = "ciQJPb90Rg-VGoxewt7uKm:APA91bFnsQHLdTKrozk-lM25aGk-nD2LfWPzB-6Z2MoWlIPHc4S6XqKW9_q1dHui2pco8kif0px4D6P6ijxSN5ngipX_OUtIJ65vMsfQE1yf0KSiRFJiZtTvuufoaYmF3LGxsdFwHyZx";
+
+                //pushNotificationLogic.ExcutePushNotification("GreenShops", "notificationfromgreenshop", devicetoken, myobj);
+
+                status.status = true;
+                return status;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
+
+        [HttpPost]
+        [Route("sendnotificationtosingleuser")]
+        public async Task<ResponseStatus> sendnotificationtosingleuser(string message, string userid)
+        {
+            ResponseStatus status = new ResponseStatus();
+            try
+            {
+                var myobj = new { Name = "Nilesh", City = "Chikhli" };
+                PushNotificationLogic pushNotificationLogic = new PushNotificationLogic("");
+                var user = appDbContex.Pushnotificationids.Where(p=>p.userid==userid).ToList();
+                if(user!=null)
+                {                
+                foreach (var ls in user)
+                {
+                         pushNotificationLogic.ExcutePushNotification("Green Shop", message,ls.pushId, myobj);
+                        // pushNotificationLogic.SendPushNotification(ls.pushId, message, "GreenShops", "notification");
+                        status.status = true;
+                    status.message = "Notification sent successfully.";
+                }
+                }
+                else
+                {
+                    status.status = false;
+                    status.message = "Push token Not exists.";
+                }
+               
+                return status;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
     }
 }

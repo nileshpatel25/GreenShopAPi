@@ -80,7 +80,7 @@ namespace apiGreenShop.Controllers
                         image = "http://api.greenshops.in/Images/" + filename,
                         productid = pid,
                         deleted = false,
-                        createAt = DateTime.Now
+                        createAt = DateTime.UtcNow
 
                     };
                     appDbContex.Productimages.Add(productimages1);

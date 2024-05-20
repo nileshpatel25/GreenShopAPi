@@ -41,7 +41,7 @@ namespace apiGreenShop.Controllers
                             unitname=unitQuantityfactorRequest.unitname,
                             quantityfactor=unitQuantityfactorRequest.quantityfactor,
                             pricefactor=unitQuantityfactorRequest.pricefactor,
-                            createdAt = DateTime.Now,
+                            createdAt = DateTime.UtcNow,
                             deleted = false
 
                         };
