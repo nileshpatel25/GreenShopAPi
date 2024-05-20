@@ -74,8 +74,7 @@ namespace apiGreenShop.Helper
                     string to, message;
                     to = _strMobile;
                     message = _Message;
-                    string baseURL = "http://www.txtguru.in/imobile/api.php?username=secinverse&password=Sec@2020&source=GRNSHP&dmobile=" + _strMobile + "&dltentityid=1501441490000014972&dltheaderid=1507162280990186383&dlttempid=1507162280990186383&message=" + _Message + "";
-                    // string baseURL = "" + smslink +" &dmobile=" + _strMobile + "&message=" + _Message + "";
+                     // string baseURL = "" + smslink +" &dmobile=" + _strMobile + "&message=" + _Message + "";
                     client.OpenRead(baseURL);
                 }
 
